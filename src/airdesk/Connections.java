@@ -139,7 +139,7 @@ public class Connections {
             DatagramPacket packet = new DatagramPacket(bufferFile, bufferFile.length, addr, 7777);
             DatagramSocket datagramSocket = new DatagramSocket();
             datagramSocket.send(packet);
-        
+            
             List<FileBean> files = AirDesk.retrieveFileList();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(out);
@@ -150,13 +150,11 @@ public class Connections {
             String msgSize = "SIZE" + listData.length;
             byte[] bufferSize = msgSize.getBytes();
             DatagramPacket packetSize = new DatagramPacket(bufferSize, bufferSize.length, addr, 7777);
-            datagramSocket.send(packet);      
-
-            byte[] buffer = new byte[listData.length];
-            DatagramPacket packetData = new DatagramPacket(buffer, buffer.length, addr, 7777);
-            datagramSocket.send(packet);
-            System.out.println(new String(packet.getData()));
-            System.out.println("Sent 'FILE' msg to " + addr.getHostAddress() + ".");
+            datagramSocket.send(packetSize);  
+            
+            DatagramPacket packetData = new DatagramPacket(listData, listData.length, addr, 7777);
+            datagramSocket.send(packetData);
+            System.out.println(new String(packetData.getData()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }
