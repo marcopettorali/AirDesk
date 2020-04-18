@@ -17,13 +17,18 @@ public class UDPListener extends Thread {
         if(addr.equals(Connections.localHost)){
             return;
         }
-        String name = sentence.substring(4).trim();
+        String mode = sentence.substring(5,7).trim();
+        String name = sentence.substring(7).trim();
         Client client = new Client(name, addr);
         Platform.runLater(() -> {
             AirDeskGUI.clientsTableAddClient(client);
         });
 
         System.out.println("Received Hello msg from " + name + "@" + addr.getHostAddress());
+        
+        if(mode.equals("_M")){
+            Connections.sendHelloMessageResponseToAddress(addr);
+        }
     }
 
     public void run() {

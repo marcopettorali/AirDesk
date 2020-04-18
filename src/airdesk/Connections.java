@@ -74,4 +74,19 @@ public class Connections {
             ex.printStackTrace();
         }
     }
+    
+    public static void sendHelloMessageResponseToAddress(InetAddress addr) {
+        String msg = "HIIM_R" + AirDesk.username;
+        byte[] buffer = msg.getBytes();
+        InetAddress address;
+        try {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, addr, 7799);
+            DatagramSocket datagramSocket = new DatagramSocket();
+            datagramSocket.setBroadcast(true);
+            datagramSocket.send(packet);
+            System.out.println("Sent '" + msg + "' msg to " + addr.getHostAddress() + ".");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }
