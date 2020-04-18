@@ -12,7 +12,7 @@ public class AirDesk extends Application {
     @Override
     public void start(Stage primaryStage) {
         
-        UDPListener server = new UDPListener(7799);
+        UDPListener server = new UDPListener(7777);
         server.setDaemon(true);
         server.start();
         

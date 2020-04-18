@@ -59,13 +59,13 @@ public class Connections {
     }
 
     public static void sendHelloMessageBroadcast() {
-        String msg = "HIIM" + AirDesk.username;
+        String msg = "HIIM_M" + AirDesk.username;
         byte[] buffer = msg.getBytes();
         InetAddress address;
         try {
 
             address = InetAddress.getByName(broadcastAddress);
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 7799);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 7777);
             DatagramSocket datagramSocket = new DatagramSocket();
             datagramSocket.setBroadcast(true);
             datagramSocket.send(packet);

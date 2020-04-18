@@ -14,19 +14,17 @@ public class UDPListener extends Thread {
     }
 
     private void receiveHelloMessage(InetAddress addr, String sentence) {
-        if(addr.equals(Connections.localHost)){
-            return;
-        }
-        String mode = sentence.substring(5,7).trim();
-        String name = sentence.substring(7).trim();
+
+        String mode = sentence.substring(4, 6).trim();
+        String name = sentence.substring(6).trim();
         Client client = new Client(name, addr);
         Platform.runLater(() -> {
             AirDeskGUI.clientsTableAddClient(client);
         });
 
         System.out.println("Received Hello msg from " + name + "@" + addr.getHostAddress());
-        
-        if(mode.equals("_M")){
+
+        if (mode.equals("_M")) {
             Connections.sendHelloMessageResponseToAddress(addr);
         }
     }
@@ -36,12 +34,15 @@ public class UDPListener extends Thread {
             DatagramSocket serverSocket = new DatagramSocket(port);
             byte[] receiveData = new byte[50];
 
-            System.out.printf("Listening on udp:%s:%d%n",Connections.localHost.getHostAddress(), port);
+            System.out.printf("Listening on udp:%s:%d%n", Connections.localHost.getHostAddress(), port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             while (true) {
                 serverSocket.receive(receivePacket);
-                String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());
+                if (receivePacket.getAddress().equals(Connections.localHost)) {
+                    continue;
+                }
+                String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());              
                 System.out.println("Received msg from " + receivePacket.getAddress() + ".");
                 String command = sentence.substring(0, 4);
                 switch (command) {
