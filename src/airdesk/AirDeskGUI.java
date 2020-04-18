@@ -16,9 +16,7 @@ public class AirDeskGUI extends AnchorPane {
     private static ClientsTable clientsTable;
     private static VBox vBox0;
     private static Label label0;
-    private static TableView filesTable;
-    private static TableColumn tableColumn1;
-    private static TableColumn tableColumn2;
+    private static FilesTable filesTable;
     private static Button downloadBtn;
     private static Label label1;
     private static StackPane dragAndDropPane;
@@ -31,9 +29,7 @@ public class AirDeskGUI extends AnchorPane {
         clientsTable = new ClientsTable();
         vBox0 = new VBox();
         label0 = new Label();
-        filesTable = new TableView();
-        tableColumn1 = new TableColumn();
-        tableColumn2 = new TableColumn();
+        filesTable = new FilesTable();
         downloadBtn = new Button();
         label1 = new Label();
         dragAndDropPane = new StackPane();
@@ -51,12 +47,6 @@ public class AirDeskGUI extends AnchorPane {
 
         filesTable.setPrefHeight(274.0);
         filesTable.setPrefWidth(550.0);
-
-        tableColumn1.setPrefWidth(75.0);
-        tableColumn1.setText("C1");
-
-        tableColumn2.setPrefWidth(75.0);
-        tableColumn2.setText("C2");
 
         downloadBtn.setAlignment(javafx.geometry.Pos.CENTER);
         downloadBtn.setMnemonicParsing(false);
@@ -76,8 +66,6 @@ public class AirDeskGUI extends AnchorPane {
         vBox.getChildren().add(clientsTable);
         hBox.getChildren().add(vBox);
         vBox0.getChildren().add(label0);
-        filesTable.getColumns().add(tableColumn1);
-        filesTable.getColumns().add(tableColumn2);
         vBox0.getChildren().add(filesTable);
         vBox0.getChildren().add(downloadBtn);
         vBox0.getChildren().add(label1);
@@ -102,6 +90,10 @@ public class AirDeskGUI extends AnchorPane {
             clientsTableOnMouseReleasedHandler(e);
         });
         
+        filesTable.setOnMouseReleased((e) -> {
+            filesTableOnMouseReleasedHandler(e);
+        });
+
         downloadBtn.setOnAction((e) -> {
             downloadBtnOnActionHandler(e);
         });
@@ -139,9 +131,22 @@ public class AirDeskGUI extends AnchorPane {
 
     private static void clientsTableOnMouseReleasedHandler(Event e) {
         Client selected = clientsTable.getSelected();
+        if (selected == null) {
+            return;
+        }
         System.out.println(selected.getName() + " " + selected.getAddress());
+        Connections.sendListRequestToAddress(selected.getAddress());
     }
     
+    private static void filesTableOnMouseReleasedHandler(Event e) {
+        FileBean selected = filesTable.getSelected();
+        if (selected == null) {
+            return;
+        }
+        System.out.println(selected.getName() + " " + selected.getPath() + selected.getSize());
+
+    }
+
     public static void clientsTableAddClient(Client client) {
         clientsTable.addClient(client);
     }
@@ -149,8 +154,12 @@ public class AirDeskGUI extends AnchorPane {
     public static void clientsTableDeleteClient(String name) {
         clientsTable.deleteClient(name);
     }
-    
-    public static void downloadBtnOnActionHandler(Event e){
-        
+
+    public static void filesTableSetFiles(List<FileBean> files) {
+        filesTable.setFiles(files);
+    }
+
+    public static void downloadBtnOnActionHandler(Event e) {
+
     }
 }
