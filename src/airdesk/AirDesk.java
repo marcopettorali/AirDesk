@@ -25,6 +25,11 @@ public class AirDesk extends Application {
         primaryStage.show();
         
     }
+    
+    @Override
+    public void stop(){
+        Connections.sendByeMessageBroadcast();
+    }
 
     public static void main(String[] args) {
         launch(args);

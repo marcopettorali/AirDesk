@@ -148,9 +148,8 @@ public class AirDeskGUI extends AnchorPane {
         clientsTable.setClients(clients);
     }
 
-    public static void clientsTableSetElements(List<Client> clients) {
-        clientsTable.setClients(clients);
-        clientsTable.deleteClient("Prova3");
+    public static void clientsTableDeleteClient(String name) {
+        clientsTable.deleteClient(name);
     }
     
     public static void downloadBtnOnActionHandler(Event e){

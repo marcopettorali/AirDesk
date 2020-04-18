@@ -87,4 +87,20 @@ public class Connections {
             ex.printStackTrace();
         }
     }
+    
+    public static void sendByeMessageBroadcast(){
+        String msg = "BYE_" + AirDesk.username;
+        byte[] buffer = msg.getBytes();
+        InetAddress address;
+        try {
+            address = InetAddress.getByName(broadcastAddress);
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, address, 7777);
+            DatagramSocket datagramSocket = new DatagramSocket();
+            datagramSocket.setBroadcast(true);
+            datagramSocket.send(packet);
+            System.out.println("Sent '" + msg + "' msg in broadcast.");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 }

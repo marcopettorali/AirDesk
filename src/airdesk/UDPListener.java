@@ -28,6 +28,15 @@ public class UDPListener extends Thread {
             Connections.sendHelloMessageResponseToAddress(addr);
         }
     }
+    
+    private void receiveByeMessage(InetAddress addr, String sentence) {
+        String name = sentence.substring(6).trim();
+        Platform.runLater(() -> {
+            AirDeskGUI.clientsTableDeleteClient(name);
+        });
+
+        System.out.println("Received Bye msg from " + name + "@" + addr.getHostAddress());
+    }
 
     public void run() {
         try {
@@ -48,6 +57,10 @@ public class UDPListener extends Thread {
                 switch (command) {
                     case "HIIM":
                         receiveHelloMessage(receivePacket.getAddress(), sentence);
+                        break;
+                    case "BYE_":
+                        receiveByeMessage(receivePacket.getAddress(), sentence);
+                        break;
                 }
 
             }
