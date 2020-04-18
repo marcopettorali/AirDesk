@@ -10,6 +10,7 @@ import javafx.application.*;
 public class UDPListener extends Thread {
 
     private int port;
+    private DatagramSocket serverSocket;
 
     public UDPListener(int port) {
         super();
@@ -47,9 +48,22 @@ public class UDPListener extends Thread {
     }
 
     private void receiveFileMessage(InetAddress addr, String sentence) {
-        ObjectInputStream inputStream = null;
         try {
-            byte[] data = sentence.substring(4).getBytes();
+            
+            byte[] receiveData = new byte[50];
+            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            serverSocket.receive(receivePacket);
+            String sizeStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
+            if(!sizeStr.substring(0,4).equals("SIZE")){
+                System.out.println("ERROR IN RECEIVE FILE LIST");
+            }
+            int size = Integer.parseInt(sizeStr.substring(4).trim());
+            
+            byte[] data = new byte[size];
+            DatagramPacket packet = new DatagramPacket(data, data.length);
+            serverSocket.receive(packet);
+            
+            ObjectInputStream inputStream = null;
             inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
             List<FileBean> files = (List<FileBean>) inputStream.readObject();
             Platform.runLater(() -> {
@@ -59,18 +73,12 @@ public class UDPListener extends Thread {
             System.out.println("Received File msg from " + addr.getHostAddress());
         } catch (Exception ex) {
             ex.printStackTrace();
-        } finally {
-            try {
-                inputStream.close();
-            } catch (IOException ex) {
-                ex.printStackTrace();
-            }
         }
     }
 
     public void run() {
         try {
-            DatagramSocket serverSocket = new DatagramSocket(port);
+            serverSocket = new DatagramSocket(port);
             byte[] receiveData = new byte[50];
 
             System.out.printf("Listening on udp:%s:%d%n", Connections.localHost.getHostAddress(), port);

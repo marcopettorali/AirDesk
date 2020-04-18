@@ -71,7 +71,7 @@ public class Connections {
             DatagramSocket datagramSocket = new DatagramSocket();
             datagramSocket.setBroadcast(true);
             datagramSocket.send(packet);
-            System.out.println("Sent '" + msg + "' msg in broadcast.");
+            System.out.println("Sent '" + msg + "' msg in broadcast." + broadcastAddress);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
@@ -119,30 +119,44 @@ public class Connections {
         }
     }
 
-    public static void sendFilesListToAddress(InetAddress addr) {
-
+    public static void sendSizeToAddress(InetAddress addr, int size) {
+        String msg = "SIZE" + size;
+        byte[] buffer = msg.getBytes();
         try {
+            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, addr, 7777);
+            DatagramSocket datagramSocket = new DatagramSocket();
+            datagramSocket.send(packet);
+            System.out.println("Sent '" + msg + "' msg to " + addr.getHostAddress() + ".");
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    public static void sendFilesListToAddress(InetAddress addr) {
+        try {
+            String msgFile = "FILE";
+            byte[] bufferFile = msgFile.getBytes();
+            DatagramPacket packet = new DatagramPacket(bufferFile, bufferFile.length, addr, 7777);
+            DatagramSocket datagramSocket = new DatagramSocket();
+            datagramSocket.send(packet);
+        
             List<FileBean> files = AirDesk.retrieveFileList();
             ByteArrayOutputStream out = new ByteArrayOutputStream();
             ObjectOutputStream outputStream = new ObjectOutputStream(out);
             outputStream.writeObject(files);
             outputStream.close();
-
             byte[] listData = out.toByteArray();
+        
+            String msgSize = "SIZE" + listData.length;
+            byte[] bufferSize = msgSize.getBytes();
+            DatagramPacket packetSize = new DatagramPacket(bufferSize, bufferSize.length, addr, 7777);
+            datagramSocket.send(packet);      
 
-            String msg = "FILE";
-            byte[] msgBytes = msg.getBytes();
-
-            byte[] buffer = new byte[msgBytes.length + listData.length];
-
-            for (int i = 0; i < buffer.length; ++i) {
-                buffer[i] = i < msgBytes.length ? msgBytes[i] : listData[i - msgBytes.length];
-            }
-
-            DatagramPacket packet = new DatagramPacket(buffer, buffer.length, addr, 7777);
-            DatagramSocket datagramSocket = new DatagramSocket();
+            byte[] buffer = new byte[listData.length];
+            DatagramPacket packetData = new DatagramPacket(buffer, buffer.length, addr, 7777);
             datagramSocket.send(packet);
-            System.out.println("Sent '" + msg + "' msg to " + addr.getHostAddress() + ".");
+            System.out.println(new String(packet.getData()));
+            System.out.println("Sent 'FILE' msg to " + addr.getHostAddress() + ".");
         } catch (Exception ex) {
             ex.printStackTrace();
         }
