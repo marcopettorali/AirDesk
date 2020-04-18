@@ -101,6 +101,10 @@ public class AirDeskGUI extends AnchorPane {
         clientsTable.setOnMouseReleased((e) -> {
             clientsTableOnMouseReleasedHandler(e);
         });
+        
+        downloadBtn.setOnAction((e) -> {
+            downloadBtnOnActionHandler(e);
+        });
     }
 
     private static void dragAndDropPaneOnDragOverHandler(DragEvent e) {
@@ -147,5 +151,9 @@ public class AirDeskGUI extends AnchorPane {
     public static void clientsTableSetElements(List<Client> clients) {
         clientsTable.setClients(clients);
         clientsTable.deleteClient("Prova3");
+    }
+    
+    public static void downloadBtnOnActionHandler(Event e){
+        
     }
 }
