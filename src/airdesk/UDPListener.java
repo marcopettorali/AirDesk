@@ -14,6 +14,9 @@ public class UDPListener extends Thread {
     }
 
     private void receiveHelloMessage(InetAddress addr, String sentence) {
+        if(addr.equals(Connections.localHost)){
+            return;
+        }
         String name = sentence.substring(4).trim();
         Client client = new Client(name, addr);
         Platform.runLater(() -> {
