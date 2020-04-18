@@ -16,7 +16,7 @@ public class AirDesk extends Application {
         server.setDaemon(true);
         server.start();
         
-        //Connections.sendHelloMessageBroadcast();
+        Connections.sendHelloMessageBroadcast();
        
         Scene scene = new Scene(gui);
         primaryStage.setTitle("AirDesk");
