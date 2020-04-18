@@ -28,7 +28,7 @@ public class UDPListener extends Thread {
             DatagramSocket serverSocket = new DatagramSocket(port);
             byte[] receiveData = new byte[50];
 
-            System.out.printf("Listening on udp:%s:%d%n", InetAddress.getLocalHost().getHostAddress(), port);
+            System.out.printf("Listening on udp:%s:%d%n",Connections.localHost.getHostAddress(), port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             while (true) {

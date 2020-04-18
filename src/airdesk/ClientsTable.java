@@ -19,6 +19,8 @@ public class ClientsTable extends TableView<Client> {
 
         this.getColumns().addAll(clientNameColumn, clientAddressColumn);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+        clients = FXCollections.observableArrayList(); 
     }
 
     public void setClients(List<Client> clients) {
@@ -27,6 +29,9 @@ public class ClientsTable extends TableView<Client> {
         this.clients.addAll(clients);
         this.setItems(this.clients);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        for(Client c : clients){
+            System.out.println(c.getName() + "@" + c.getAddress());
+        }
     }
     
     public void deleteClient(String name){

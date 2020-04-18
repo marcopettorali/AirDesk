@@ -4,9 +4,9 @@ import java.net.*;
 
 public class Connections {
 
-    private static String broadcastAddress;
-    private static String subnetAddress;
-    private static InetAddress localHost;
+    public static String broadcastAddress;
+    public static String subnetAddress;
+    public static InetAddress localHost;
 
     static {
         try (final DatagramSocket socket = new DatagramSocket()) {
@@ -34,8 +34,6 @@ public class Connections {
                 }
             }
 
-            System.out.println(subnetMaskNegated[0] + "." + subnetMaskNegated[1] + "." + subnetMaskNegated[2] + "." + subnetMaskNegated[3]);
-
             subnetAddress = "";
             broadcastAddress = "";
             int[] subnetAddressInt = new int[4];
@@ -54,9 +52,7 @@ public class Connections {
                     subnetAddress += ".";
                     broadcastAddress += ".";
                 }
-
             }
-            System.out.println(broadcastAddress);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
