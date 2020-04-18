@@ -143,9 +143,7 @@ public class AirDeskGUI extends AnchorPane {
     }
     
     public static void clientsTableAddClient(Client client) {
-        List<Client> clients = clientsTable.getClients();
-        clients.add(client);
-        clientsTable.setClients(clients);
+        clientsTable.addClient(client);
     }
 
     public static void clientsTableDeleteClient(String name) {

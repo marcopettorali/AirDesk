@@ -29,6 +29,12 @@ public class ClientsTable extends TableView<Client> {
         this.clients.addAll(clients);
         this.setItems(this.clients);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+        
+    }
+    
+    public void addClient(Client c){
+        clients.add(c);
+        this.setItems(this.clients);
     }
     
     public void deleteClient(String name){

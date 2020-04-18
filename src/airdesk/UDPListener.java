@@ -30,7 +30,7 @@ public class UDPListener extends Thread {
     }
     
     private void receiveByeMessage(InetAddress addr, String sentence) {
-        String name = sentence.substring(6).trim();
+        String name = sentence.substring(4).trim();
         Platform.runLater(() -> {
             AirDeskGUI.clientsTableDeleteClient(name);
         });
