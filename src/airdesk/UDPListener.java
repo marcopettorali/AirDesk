@@ -67,7 +67,7 @@ public class UDPListener extends Thread {
 
             do {
                 serverSocket.receive(packet);
-            } while (!receivePacket.getAddress().equals(addr));
+            } while (!packet.getAddress().equals(addr));
 
             ObjectInputStream inputStream = null;
             inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
@@ -101,11 +101,9 @@ public class UDPListener extends Thread {
             DatagramPacket packet = new DatagramPacket(data, data.length);
             do {
                 serverSocket.receive(packet);
-            } while (!receivePacket.getAddress().equals(addr));
+            } while (!packet.getAddress().equals(addr));
 
-            ObjectInputStream inputStream = null;
-            inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
-            String file = (String) inputStream.readObject();
+            String file = new String(data);
             Platform.runLater(() -> {
                 Connections.sendFileToAddress(addr, file);
             });
@@ -135,16 +133,17 @@ public class UDPListener extends Thread {
             DatagramPacket packet = new DatagramPacket(data, data.length);
             do {
                 serverSocket.receive(packet);
-            } while (!receivePacket.getAddress().equals(addr));
+            } while (!packet.getAddress().equals(addr));
 
-            ObjectInputStream inputStream = null;
-            inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
-            String fileName = (String) inputStream.readObject();
+            String fileName = new String(data);
 
             receivePacket = new DatagramPacket(receiveData, receiveData.length);
+            do {
+                serverSocket.receive(receivePacket);
+            } while (!receivePacket.getAddress().equals(addr));
             String sizeFileStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
             if (!sizeStr.substring(0, 4).equals("SIZE")) {
-                System.out.println("ERROR IN RECEIVE FILE SIZE");
+                System.out.println("ERROR IN RECEIVE FILE SIZE" + sizeStr);
             }
             int fileSize = Integer.parseInt(sizeFileStr.substring(4).trim());
 
@@ -152,8 +151,8 @@ public class UDPListener extends Thread {
             DatagramPacket packetFile = new DatagramPacket(dataFile, dataFile.length);
             do {
                 serverSocket.receive(packetFile);
-            } while (!receivePacket.getAddress().equals(addr));
-
+            } while (!packetFile.getAddress().equals(addr));
+            System.out.println(new String(packetFile.getData()));
             FileOutputStream fos = new FileOutputStream("./shared/" + fileName, true);
             fos.write(dataFile, 0, fileSize);
 
@@ -161,12 +160,14 @@ public class UDPListener extends Thread {
                 System.out.println("COMPLETED " + fileName);
             }
 
+            fos.close();
+
             System.out.println("Received Want msg from " + addr.getHostAddress());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
     }
-    
+
     private void receiveGiveMessage(InetAddress addr, String sentence) {
         try {
 
@@ -191,7 +192,7 @@ public class UDPListener extends Thread {
             ObjectInputStream inputStream = null;
             inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
             String file = (String) inputStream.readObject();
-            
+
             Platform.runLater(() -> {
                 Connections.sendWantMessageToAddress(addr, file);
             });
