@@ -22,7 +22,7 @@ public class AirDesk extends Application {
 
         for (final File f : folder.listFiles()) {
             if (f.isFile()) {
-                result.add(new FileBean(f.getAbsolutePath(), f.getName(), new DecimalFormat("###,###").format(f.length()/1000)));
+                result.add(new FileBean(f.getAbsolutePath(), f.getName(), new DecimalFormat("###,###").format(f.length()/1024)));
             }
         }
         return result;
@@ -37,8 +37,6 @@ public class AirDesk extends Application {
 
         Connections.sendHelloMessageBroadcast();
         
-        //AirDeskGUI.filesTableSetFiles(retrieveFileList());
-
         Scene scene = new Scene(gui);
         primaryStage.setTitle("AirDesk");
         primaryStage.setResizable(false);

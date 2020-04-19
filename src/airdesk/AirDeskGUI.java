@@ -139,11 +139,7 @@ public class AirDeskGUI extends AnchorPane {
     }
     
     private static void filesTableOnMouseReleasedHandler(Event e) {
-        FileBean selected = filesTable.getSelected();
-        if (selected == null) {
-            return;
-        }
-        System.out.println(selected.getName() + " " + selected.getPath() + selected.getSize());
+        
 
     }
 
@@ -160,6 +156,14 @@ public class AirDeskGUI extends AnchorPane {
     }
 
     public static void downloadBtnOnActionHandler(Event e) {
-
+        FileBean selectedFile = filesTable.getSelected();
+        if (selectedFile == null) {
+            return;
+        }
+        Client selectedClient = clientsTable.getSelected();
+        if (selectedClient == null) {
+            return;
+        }
+        Connections.sendWantMessageToAddress(selectedClient.getAddress(), selectedFile.getPath());
     }
 }
