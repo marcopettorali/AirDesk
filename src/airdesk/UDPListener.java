@@ -115,7 +115,7 @@ public class UDPListener extends Thread {
     }
 
     private void receivePackMessage(InetAddress addr, String sentence) {
-        try {
+        try(DatagramSocket datagramSocket = new DatagramSocket();) {
 
             byte[] receiveData = new byte[50];
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
@@ -161,6 +161,11 @@ public class UDPListener extends Thread {
             }
 
             fos.close();
+
+            String msgAck = "ACK";
+            byte[] bufferAck = msgAck.getBytes();
+            DatagramPacket ackMessage = new DatagramPacket(bufferAck, bufferAck.length, addr, 7778);
+            datagramSocket.send(ackMessage);
 
             System.out.println("Received Want msg from " + addr.getHostAddress());
         } catch (Exception ex) {

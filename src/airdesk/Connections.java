@@ -172,7 +172,8 @@ public class Connections {
     }
 
     public static void sendFileToAddress(InetAddress addr, String filePath) {
-        try (DatagramSocket datagramSocket = new DatagramSocket();) {
+        try (DatagramSocket datagramSocket = new DatagramSocket(); DatagramSocket serverSocket = new DatagramSocket(7778);) {
+
             File file = new File(filePath);
             FileInputStream fis = new FileInputStream(file);
             while (true) {
@@ -191,7 +192,7 @@ public class Connections {
                 byte[] bufferFileNameSize = msgFileNameSize.getBytes();
                 DatagramPacket packetFileNameSize = new DatagramPacket(bufferFileNameSize, bufferFileNameSize.length, addr, 7777);
                 datagramSocket.send(packetFileNameSize);
-                
+
                 DatagramPacket packetFileName = new DatagramPacket(filename, filename.length, addr, 7777);
                 datagramSocket.send(packetFileName);
                 System.out.println(new String(packetFileName.getData()));
@@ -200,10 +201,16 @@ public class Connections {
                 byte[] bufferSize = msgSize.getBytes();
                 DatagramPacket packetSize = new DatagramPacket(bufferSize, bufferSize.length, addr, 7777);
                 datagramSocket.send(packetSize);
-                
+
                 DatagramPacket packetData = new DatagramPacket(listData, bytesRead, addr, 7777);
                 datagramSocket.send(packetData);
 
+                byte[] ackData = new byte[50];
+                DatagramPacket receivePacket = new DatagramPacket(ackData, ackData.length);
+                serverSocket.receive(receivePacket);
+                if(!new String(ackData).equals("ACK")){
+                    System.out.println("ERROR IN RECEIVING ACK: " + new String(ackData));
+                }
 
                 if (bytesRead != bytes.length) {
                     break;
@@ -214,7 +221,7 @@ public class Connections {
             ex.printStackTrace();
         }
     }
-    
+
     public static void sendGiveMessageToAddress(InetAddress addr, String path) {
 
         try (DatagramSocket datagramSocket = new DatagramSocket();) {
