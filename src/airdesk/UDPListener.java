@@ -152,11 +152,11 @@ public class UDPListener extends Thread {
             do {
                 serverSocket.receive(packetFile);
             } while (!packetFile.getAddress().equals(addr));
-            System.out.println(new String(packetFile.getData()));
+
             FileOutputStream fos = new FileOutputStream("./shared/" + fileName, true);
             fos.write(dataFile, 0, fileSize);
 
-            if (fileSize != 32768) {
+            if (fileSize != 65000) {
                 System.out.println("COMPLETED " + fileName);
             }
 
@@ -189,9 +189,7 @@ public class UDPListener extends Thread {
                 serverSocket.receive(packet);
             } while (!receivePacket.getAddress().equals(addr));
 
-            ObjectInputStream inputStream = null;
-            inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
-            String file = (String) inputStream.readObject();
+            String file = new String(data);
 
             Platform.runLater(() -> {
                 Connections.sendWantMessageToAddress(addr, file);

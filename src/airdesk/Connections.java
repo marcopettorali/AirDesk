@@ -176,7 +176,7 @@ public class Connections {
             File file = new File(filePath);
             FileInputStream fis = new FileInputStream(file);
             while (true) {
-                byte[] bytes = new byte[32768];
+                byte[] bytes = new byte[65000];
                 int bytesRead = fis.read(bytes);
                 byte[] listData = bytes;
 
@@ -191,7 +191,7 @@ public class Connections {
                 byte[] bufferFileNameSize = msgFileNameSize.getBytes();
                 DatagramPacket packetFileNameSize = new DatagramPacket(bufferFileNameSize, bufferFileNameSize.length, addr, 7777);
                 datagramSocket.send(packetFileNameSize);
-
+                
                 DatagramPacket packetFileName = new DatagramPacket(filename, filename.length, addr, 7777);
                 datagramSocket.send(packetFileName);
                 System.out.println(new String(packetFileName.getData()));
@@ -200,10 +200,10 @@ public class Connections {
                 byte[] bufferSize = msgSize.getBytes();
                 DatagramPacket packetSize = new DatagramPacket(bufferSize, bufferSize.length, addr, 7777);
                 datagramSocket.send(packetSize);
-
+                
                 DatagramPacket packetData = new DatagramPacket(listData, bytesRead, addr, 7777);
                 datagramSocket.send(packetData);
-                System.out.println(new String(packetData.getData()));
+
 
                 if (bytesRead != bytes.length) {
                     break;

@@ -9,7 +9,7 @@ import javafx.stage.*;
 
 public class AirDesk extends Application {
 
-    public static String username = "PC Fisso";
+    public static String username = "PC Portatile";
     private AirDeskGUI gui = new AirDeskGUI();
 
     public static List<FileBean> retrieveFileList() {
