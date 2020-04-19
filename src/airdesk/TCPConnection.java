@@ -6,6 +6,7 @@ import java.net.*;
 public class TCPConnection {
 
     public static void sendWantMessageToAddress(InetAddress addr, String path) {
+        FileOutputStream fos = null;
         try (
                 Socket sock = new Socket(addr, 7778);
                 DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
@@ -14,23 +15,29 @@ public class TCPConnection {
             dos.writeUTF("WANT");
             dos.writeUTF(path);
 
-            FileOutputStream fos = new FileOutputStream("./shared" + new File(path).getName(), true);
+            fos = new FileOutputStream("./shared/" + new File(path).getName(), true);
 
             while (true) {
-                byte[] buffer = new byte[1024];
+                byte[] buffer = new byte[65000];
                 dis.read(buffer);
                 int bytesRead = dis.readInt();
+                System.out.println(bytesRead);
                 fos.write(buffer, 0, bytesRead);
-                if (bytesRead != 1024) {
+                dos.writeUTF("ACK");
+                if (bytesRead != 65000) {
                     System.out.println("TRANSFER COMPLETED");
-                    dis.close();
-                    dos.close();
                     fos.close();
-                    sock.close();
+                    break;
                 }
             }
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            try {
+                fos.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 

@@ -13,48 +13,67 @@ public class TCPListener extends Thread {
 
     private void receiveWantMessage(Socket socket) {
         System.out.println("Received want msg");
+        DataOutputStream dos = null;
+        DataInputStream dis = null;
+        FileInputStream fis = null;
         try {
-            DataOutputStream dos = new DataOutputStream(socket.getOutputStream());
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            dos = new DataOutputStream(socket.getOutputStream());
+            dis = new DataInputStream(socket.getInputStream());
             String filename = dis.readUTF();
-            FileInputStream fis = new FileInputStream(filename);
+            fis = new FileInputStream(filename);
 
             while (true) {
-                byte[] bytes = new byte[1024];
+                byte[] bytes = new byte[65000];
                 int bytesRead = fis.read(bytes);
                 dos.write(bytes);
-                dos.writeInt(bytesRead);
-
+                dos.write(bytesRead);
+                String ack = dis.readUTF();
+                if (!ack.equals("ACK")) {
+                    System.out.println("ACK ERROR");
+                    break;
+                }
                 if (bytesRead != bytes.length) {
-                    fis.close();
-                    dis.close();
-                    dos.close();
-                    socket.close();
                     break;
                 }
             }
 
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            try {
+                dos.close();
+                dis.close();
+                fis.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     private void receiveGiveMessage(Socket socket) {
+        DataInputStream dis = null;
         try {
-            DataInputStream dis = new DataInputStream(socket.getInputStream());
+            dis = new DataInputStream(socket.getInputStream());
             String filename = dis.readUTF();
 
             TCPConnection.sendWantMessageToAddress(socket.getInetAddress(), filename);
         } catch (Exception ex) {
             ex.printStackTrace();
+        } finally {
+            try {
+                dis.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 
     public void run() {
+        DataInputStream dis = null;
         try (ServerSocket serverSocket = new ServerSocket(7778)) {
             while (true) {
                 Socket connectionSocket = serverSocket.accept();
-                DataInputStream dis = new DataInputStream(connectionSocket.getInputStream());
+                dis = new DataInputStream(connectionSocket.getInputStream());
 
                 String command = dis.readUTF();
                 System.out.println("Received command " + command + " from " + connectionSocket.getInetAddress().getHostAddress());
@@ -69,6 +88,12 @@ public class TCPListener extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        } finally {
+            try {
+                dis.close();
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
         }
     }
 }
