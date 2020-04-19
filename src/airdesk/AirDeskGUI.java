@@ -90,10 +90,6 @@ public class AirDeskGUI extends AnchorPane {
             clientsTableOnMouseReleasedHandler(e);
         });
         
-        filesTable.setOnMouseReleased((e) -> {
-            filesTableOnMouseReleasedHandler(e);
-        });
-
         downloadBtn.setOnAction((e) -> {
             downloadBtnOnActionHandler(e);
         });
@@ -113,6 +109,10 @@ public class AirDeskGUI extends AnchorPane {
     }
 
     private static void dragAndDropPaneOnDragDroppedHandler(DragEvent e) {
+        Client selectedClient = clientsTable.getSelected();
+        if (selectedClient == null) {
+            return;
+        }
         final Dragboard db = e.getDragboard();
         boolean success = false;
         if (db.hasFiles()) {
@@ -120,6 +120,7 @@ public class AirDeskGUI extends AnchorPane {
             success = true;
             final File file = db.getFiles().get(0);
             System.out.println(file.getAbsolutePath());
+            Connections.sendGiveMessageToAddress(selectedClient.getAddress(), file.getAbsolutePath());
         }
         e.setDropCompleted(success);
         e.consume();
@@ -138,11 +139,6 @@ public class AirDeskGUI extends AnchorPane {
         Connections.sendListRequestToAddress(selected.getAddress());
     }
     
-    private static void filesTableOnMouseReleasedHandler(Event e) {
-        
-
-    }
-
     public static void clientsTableAddClient(Client client) {
         clientsTable.addClient(client);
     }
