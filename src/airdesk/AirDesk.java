@@ -31,7 +31,7 @@ public class AirDesk extends Application {
 
     private static void loadParametersFromConfigFile() {
         try {
-            Scanner scanner = new Scanner(new File("./config.txt"));        
+            Scanner scanner = new Scanner(new File("./config.txt"));
             while (scanner.hasNext()) {
                 String line = scanner.nextLine();
                 String[] words = line.split(":");
@@ -41,11 +41,14 @@ public class AirDesk extends Application {
                         break;
                     case "shared-folder":
                         sharedFolder = words[1].trim();
+                        final File folder = new File(sharedFolder);
+                        if (!folder.exists()) {
+                            folder.mkdir();
+                        }
                         break;
                 }
                 System.out.println(line);
             }
-            System.out.println(username + sharedFolder);
         } catch (Exception ex) {
             ex.printStackTrace();
         }
