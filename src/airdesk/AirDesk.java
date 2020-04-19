@@ -22,7 +22,7 @@ public class AirDesk extends Application {
 
         for (final File f : folder.listFiles()) {
             if (f.isFile()) {
-                result.add(new FileBean(f.getAbsolutePath(), f.getName(), new DecimalFormat("###,###").format(f.length()/1024)));
+                result.add(new FileBean(f.getAbsolutePath(), f.getName(), new DecimalFormat("###,###").format(f.length() / 1024)));
             }
         }
         return result;
@@ -35,19 +35,23 @@ public class AirDesk extends Application {
         server.setDaemon(true);
         server.start();
 
-        Connections.sendHelloMessageBroadcast();
-        
+        TCPListener tcpListener = new TCPListener();
+        tcpListener.setDaemon(true);
+        tcpListener.start();
+
         Scene scene = new Scene(gui);
         primaryStage.setTitle("AirDesk");
         primaryStage.setResizable(false);
         primaryStage.setScene(scene);
         primaryStage.show();
 
+        UDPConnection.sendHelloMessageBroadcast();
+
     }
 
     @Override
     public void stop() {
-        Connections.sendByeMessageBroadcast();
+        UDPConnection.sendByeMessageBroadcast();
     }
 
     public static void main(String[] args) {

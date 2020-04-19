@@ -28,7 +28,7 @@ public class UDPListener extends Thread {
         System.out.println("Received Hello msg from " + name + "@" + addr.getHostAddress());
 
         if (mode.equals("_M")) {
-            Connections.sendHelloMessageResponseToAddress(addr);
+            UDPConnection.sendHelloMessageResponseToAddress(addr);
         }
     }
 
@@ -43,7 +43,7 @@ public class UDPListener extends Thread {
 
     private void receiveListMessage(InetAddress addr, String sentence) {
         System.out.println("Received List msg from " + addr.getHostAddress());
-        Connections.sendFilesListToAddress(addr);
+        UDPConnection.sendFilesListToAddress(addr);
     }
 
     private void receiveFileMessage(InetAddress addr, String sentence) {
@@ -82,143 +82,20 @@ public class UDPListener extends Thread {
         }
     }
 
-    private void receiveWantMessage(InetAddress addr, String sentence) {
-        try {
-
-            byte[] receiveData = new byte[50];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            do {
-                serverSocket.receive(receivePacket);
-            } while (!receivePacket.getAddress().equals(addr));
-
-            String sizeStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            if (!sizeStr.substring(0, 4).equals("SIZE")) {
-                System.out.println("ERROR IN RECEIVE FILE LIST");
-            }
-            int size = Integer.parseInt(sizeStr.substring(4).trim());
-
-            byte[] data = new byte[size];
-            DatagramPacket packet = new DatagramPacket(data, data.length);
-            do {
-                serverSocket.receive(packet);
-            } while (!packet.getAddress().equals(addr));
-
-            String file = new String(data);
-            Platform.runLater(() -> {
-                Connections.sendFileToAddress(addr, file);
-            });
-
-            System.out.println("Received Want msg from " + addr.getHostAddress());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void receivePackMessage(InetAddress addr, String sentence) {
-        try(DatagramSocket datagramSocket = new DatagramSocket();) {
-
-            byte[] receiveData = new byte[50];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            do {
-                serverSocket.receive(receivePacket);
-            } while (!receivePacket.getAddress().equals(addr));
-
-            String sizeStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            if (!sizeStr.substring(0, 4).equals("FNSI")) {
-                System.out.println("ERROR IN RECEIVE FILE NAME SIZE");
-            }
-            int fileNameSize = Integer.parseInt(sizeStr.substring(4).trim());
-
-            byte[] data = new byte[fileNameSize];
-            DatagramPacket packet = new DatagramPacket(data, data.length);
-            do {
-                serverSocket.receive(packet);
-            } while (!packet.getAddress().equals(addr));
-
-            String fileName = new String(data);
-
-            receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            do {
-                serverSocket.receive(receivePacket);
-            } while (!receivePacket.getAddress().equals(addr));
-            String sizeFileStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            if (!sizeFileStr.substring(0, 4).equals("SIZE")) {
-                System.out.println("ERROR IN RECEIVE FILE SIZE" + sizeFileStr);
-            }
-            int fileSize = Integer.parseInt(sizeFileStr.substring(4).trim());
-
-            byte[] dataFile = new byte[fileSize];
-            DatagramPacket packetFile = new DatagramPacket(dataFile, dataFile.length);
-            do {
-                serverSocket.receive(packetFile);
-            } while (!packetFile.getAddress().equals(addr));
-
-            FileOutputStream fos = new FileOutputStream("./shared/" + fileName, true);
-            fos.write(dataFile, 0, fileSize);
-
-            if (fileSize != 65000) {
-                System.out.println("COMPLETED " + fileName);
-            }
-
-            fos.close();
-
-            String msgAck = "ACK";
-            byte[] bufferAck = msgAck.getBytes();
-            DatagramPacket ackMessage = new DatagramPacket(bufferAck, bufferAck.length, addr, 7778);
-            datagramSocket.send(ackMessage);
-
-            System.out.println("Received Pack msg from " + addr.getHostAddress());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
-    private void receiveGiveMessage(InetAddress addr, String sentence) {
-        try {
-
-            byte[] receiveData = new byte[50];
-            DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
-            do {
-                serverSocket.receive(receivePacket);
-            } while (!receivePacket.getAddress().equals(addr));
-
-            String sizeStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            if (!sizeStr.substring(0, 4).equals("SIZE")) {
-                System.out.println("ERROR IN RECEIVE FILE LIST");
-            }
-            int size = Integer.parseInt(sizeStr.substring(4).trim());
-
-            byte[] data = new byte[size];
-            DatagramPacket packet = new DatagramPacket(data, data.length);
-            do {
-                serverSocket.receive(packet);
-            } while (!receivePacket.getAddress().equals(addr));
-
-            String file = new String(data);
-
-            Platform.runLater(() -> {
-                Connections.sendWantMessageToAddress(addr, file);
-            });
-
-            System.out.println("Received Want msg from " + addr.getHostAddress());
-        } catch (Exception ex) {
-            ex.printStackTrace();
-        }
-    }
-
     public void run() {
         try {
             serverSocket = new DatagramSocket(port);
             byte[] receiveData = new byte[50];
 
-            System.out.printf("Listening on udp:%s:%d%n", Connections.localHost.getHostAddress(), port);
+            System.out.printf("Listening on udp:%s", UDPConnection.localHost.getHostAddress(), port);
             DatagramPacket receivePacket = new DatagramPacket(receiveData, receiveData.length);
 
             while (true) {
                 serverSocket.receive(receivePacket);
-                if (receivePacket.getAddress().equals(Connections.localHost)) {
+                if (receivePacket.getAddress().equals(UDPConnection.localHost)) {
                     continue;
                 }
+
                 String sentence = new String(receivePacket.getData(), 0, receivePacket.getLength());
                 System.out.println("Received msg from " + receivePacket.getAddress() + ".");
                 String command = sentence.substring(0, 4);
@@ -234,15 +111,6 @@ public class UDPListener extends Thread {
                         break;
                     case "FILE":
                         receiveFileMessage(receivePacket.getAddress(), sentence);
-                        break;
-                    case "WANT":
-                        receiveWantMessage(receivePacket.getAddress(), sentence);
-                        break;
-                    case "PACK":
-                        receivePackMessage(receivePacket.getAddress(), sentence);
-                        break;
-                    case "GIVE":
-                        receiveGiveMessage(receivePacket.getAddress(), sentence);
                         break;
                 }
 
