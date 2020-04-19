@@ -205,7 +205,7 @@ public class Connections {
                 DatagramPacket packetData = new DatagramPacket(listData, bytesRead, addr, 7777);
                 datagramSocket.send(packetData);
 
-                byte[] ackData = new byte[50];
+                byte[] ackData = new byte[3];
                 DatagramPacket receivePacket = new DatagramPacket(ackData, ackData.length);
                 serverSocket.receive(receivePacket);
                 if(!new String(ackData).equals("ACK")){

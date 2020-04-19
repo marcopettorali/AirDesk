@@ -142,8 +142,8 @@ public class UDPListener extends Thread {
                 serverSocket.receive(receivePacket);
             } while (!receivePacket.getAddress().equals(addr));
             String sizeFileStr = new String(receivePacket.getData(), 0, receivePacket.getLength());
-            if (!sizeStr.substring(0, 4).equals("SIZE")) {
-                System.out.println("ERROR IN RECEIVE FILE SIZE" + sizeStr);
+            if (!sizeFileStr.substring(0, 4).equals("SIZE")) {
+                System.out.println("ERROR IN RECEIVE FILE SIZE" + sizeFileStr);
             }
             int fileSize = Integer.parseInt(sizeFileStr.substring(4).trim());
 
@@ -167,7 +167,7 @@ public class UDPListener extends Thread {
             DatagramPacket ackMessage = new DatagramPacket(bufferAck, bufferAck.length, addr, 7778);
             datagramSocket.send(ackMessage);
 
-            System.out.println("Received Want msg from " + addr.getHostAddress());
+            System.out.println("Received Pack msg from " + addr.getHostAddress());
         } catch (Exception ex) {
             ex.printStackTrace();
         }
