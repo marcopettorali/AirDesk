@@ -136,7 +136,6 @@ public class UDPConnection {
             datagramSocket.send(packetSize);
             DatagramPacket packetData = new DatagramPacket(listData, listData.length, addr, 7777);
             datagramSocket.send(packetData);
-            System.out.println(new String(packetData.getData()));
         } catch (Exception ex) {
             ex.printStackTrace();
         }

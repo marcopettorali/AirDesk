@@ -1,6 +1,7 @@
 package airdesk;
 
 import java.io.File;
+import java.net.InetAddress;
 import java.util.List;
 import javafx.event.*;
 import javafx.geometry.*;
@@ -14,6 +15,8 @@ public class AirDeskGUI extends AnchorPane {
     private static VBox vBox;
     private static Label label;
     private static ClientsTable clientsTable;
+    private static Label logLabel;
+    private static TextArea logTextArea;
     private static VBox vBox0;
     private static Label label0;
     private static FilesTable filesTable;
@@ -27,6 +30,8 @@ public class AirDeskGUI extends AnchorPane {
         vBox = new VBox();
         label = new Label();
         clientsTable = new ClientsTable();
+        logLabel = new Label();
+        logTextArea = new TextArea();
         vBox0 = new VBox();
         label0 = new Label();
         filesTable = new FilesTable();
@@ -42,6 +47,13 @@ public class AirDeskGUI extends AnchorPane {
 
         clientsTable.setPrefHeight(274.0);
         clientsTable.setPrefWidth(296.0);
+
+        logLabel.setText("Log:");
+        VBox.setMargin(logLabel, new Insets(20.0, 0.0, 0.0, 0.0));
+
+        logTextArea.setEditable(false);
+        logTextArea.setPrefHeight(200.0);
+        logTextArea.setPrefWidth(200.0);
 
         label0.setText("Files:");
 
@@ -64,6 +76,8 @@ public class AirDeskGUI extends AnchorPane {
 
         vBox.getChildren().add(label);
         vBox.getChildren().add(clientsTable);
+        vBox.getChildren().add(logLabel);
+        vBox.getChildren().add(logTextArea);
         hBox.getChildren().add(vBox);
         vBox0.getChildren().add(label0);
         vBox0.getChildren().add(filesTable);
@@ -119,7 +133,6 @@ public class AirDeskGUI extends AnchorPane {
             e.acceptTransferModes(TransferMode.COPY);
             success = true;
             final File file = db.getFiles().get(0);
-            System.out.println(file.getAbsolutePath());
             TCPConnection.sendGiveMessageToAddress(selectedClient.getAddress(), file.getAbsolutePath());
         }
         e.setDropCompleted(success);
@@ -135,11 +148,11 @@ public class AirDeskGUI extends AnchorPane {
         if (selected == null) {
             return;
         }
-        System.out.println(selected.getName() + " " + selected.getAddress());
         UDPConnection.sendListRequestToAddress(selected.getAddress());
     }
 
     public static void clientsTableAddClient(Client client) {
+        clientsTable.deleteClient(client.getName());
         clientsTable.addClient(client);
     }
 
@@ -149,6 +162,10 @@ public class AirDeskGUI extends AnchorPane {
 
     public static void filesTableSetFiles(List<FileBean> files) {
         filesTable.setFiles(files);
+    }
+    
+    public static String clientsTableGetNameFromAddress(InetAddress addr) {
+        return clientsTable.getNameFromAddress(addr);
     }
 
     public static void downloadBtnOnActionHandler(Event e) {
@@ -161,5 +178,13 @@ public class AirDeskGUI extends AnchorPane {
             return;
         }
         TCPConnection.sendWantMessageToAddress(selectedClient.getAddress(), selectedFile.getPath());
+    }
+    
+    public static void addLogEntry(String entry){
+        logTextArea.setText(logTextArea.getText() + entry + "\n");
+    }
+    
+    public static void clearLog(String entry){
+        logTextArea.setText("");
     }
 }

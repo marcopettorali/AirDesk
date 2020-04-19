@@ -1,5 +1,6 @@
 package airdesk;
 
+import java.net.InetAddress;
 import java.util.*;
 import javafx.collections.*;
 import javafx.scene.control.*;
@@ -19,8 +20,8 @@ public class ClientsTable extends TableView<Client> {
 
         this.getColumns().addAll(clientNameColumn, clientAddressColumn);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
-        clients = FXCollections.observableArrayList(); 
+
+        clients = FXCollections.observableArrayList();
     }
 
     public void setClients(List<Client> clients) {
@@ -29,29 +30,38 @@ public class ClientsTable extends TableView<Client> {
         this.clients.addAll(clients);
         this.setItems(this.clients);
         this.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-        
+
     }
-    
-    public void addClient(Client c){
+
+    public void addClient(Client c) {
         clients.add(c);
         this.setItems(this.clients);
     }
-    
-    public void deleteClient(String name){
-        for(int i = 0; i< clients.size(); i++){
-            if(clients.get(i).getName().equals(name)){
+
+    public void deleteClient(String name) {
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients.get(i).getName().equals(name)) {
                 clients.remove(i);
                 return;
             }
         }
     }
-    
-    public List<Client> getClients(){
+
+    public List<Client> getClients() {
         return clients;
     }
 
     public Client getSelected() {
         return this.getSelectionModel().getSelectedItem();
+    }
+
+    public String getNameFromAddress(InetAddress addr) {
+        for (int i = 0; i < clients.size(); i++) {
+            if (clients.get(i).getAddress().equals(addr)) {
+                return clients.get(i).getName();
+            }
+        }
+        return "";
     }
 
 }
