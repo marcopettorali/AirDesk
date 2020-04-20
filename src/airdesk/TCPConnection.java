@@ -20,9 +20,9 @@ public class TCPConnection {
 
             String fileName = new File(path).getName();
             if (new File(AirDesk.sharedFolder + fileName).exists()) {
-                Date date = new Date();  
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");  
-                String timestamp = formatter.format(date);        
+                Date date = new Date();
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");
+                String timestamp = formatter.format(date);
                 fileName = timestamp + " " + fileName;
             }
 
@@ -42,6 +42,7 @@ public class TCPConnection {
                     break;
                 }
             }
+            dos.flush();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -58,10 +59,10 @@ public class TCPConnection {
                 Socket sock = new Socket(addr, 7778);
                 DataOutputStream dos = new DataOutputStream(sock.getOutputStream());
                 DataInputStream dis = new DataInputStream(sock.getInputStream());) {
-
             dos.writeUTF("GIVE");
             dos.writeUTF(path);
             AirDeskGUI.addLogEntry("Sending " + new File(path).getName() + " to " + AirDeskGUI.clientsTableGetNameFromAddress(addr));
+            dos.flush();
         } catch (Exception ex) {
             ex.printStackTrace();
         }

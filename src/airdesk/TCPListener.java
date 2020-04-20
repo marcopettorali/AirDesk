@@ -34,7 +34,7 @@ public class TCPListener extends Thread {
                     break;
                 }
             }
-
+            dos.flush();
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
