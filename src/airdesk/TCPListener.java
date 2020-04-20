@@ -20,8 +20,6 @@ public class TCPListener extends Thread {
             String filename = dis.readUTF();
             fis = new FileInputStream(filename);
 
-            dos.writeInt((int) Math.ceil(new File(filename).length() / 65000.0));
-
             while (true) {
                 byte[] bytes = new byte[65000];
                 int bytesRead = fis.read(bytes);
