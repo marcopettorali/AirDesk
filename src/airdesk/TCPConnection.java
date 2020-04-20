@@ -21,9 +21,9 @@ public class TCPConnection {
             String fileName = new File(path).getName();
             if (new File(AirDesk.sharedFolder + fileName).exists()) {
                 Date date = new Date();  
-                SimpleDateFormat formatter = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");  
+                SimpleDateFormat formatter = new SimpleDateFormat("yyyy_MM_dd_HH_mm_ss");  
                 String timestamp = formatter.format(date);        
-                fileName = timestamp + "-" + fileName;
+                fileName = timestamp + " " + fileName;
             }
 
             fos = new FileOutputStream(AirDesk.sharedFolder + fileName, true);
@@ -37,7 +37,7 @@ public class TCPConnection {
                 fos.write(buffer, 0, bytesRead);
                 dos.writeUTF("ACK");
                 if (bytesRead != 65000) {
-                    AirDeskGUI.addLogEntry("File " + new File(path).getName() + " received correctly.");
+                    AirDeskGUI.addLogEntry("File " + fileName + " received correctly.");
                     fos.close();
                     break;
                 }
