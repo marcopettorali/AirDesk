@@ -125,6 +125,7 @@ public class AirDeskGUI extends AnchorPane {
     private static void dragAndDropPaneOnDragDroppedHandler(DragEvent e) {
         Client selectedClient = clientsTable.getSelected();
         if (selectedClient == null) {
+            addLogEntry("Please, select a client first");
             return;
         }
         final Dragboard db = e.getDragboard();
@@ -133,7 +134,12 @@ public class AirDeskGUI extends AnchorPane {
             e.acceptTransferModes(TransferMode.COPY);
             success = true;
             final File file = db.getFiles().get(0);
-            TCPConnection.sendGiveMessageToAddress(selectedClient.getAddress(), file.getAbsolutePath());
+            new Thread() {
+                public void run() {
+                    TCPConnection.sendGiveMessageToAddress(selectedClient.getAddress(), file.getAbsolutePath());
+                }
+            }.start();
+
         }
         e.setDropCompleted(success);
         e.consume();
@@ -163,7 +169,7 @@ public class AirDeskGUI extends AnchorPane {
     public static void filesTableSetFiles(List<FileBean> files) {
         filesTable.setFiles(files);
     }
-    
+
     public static String clientsTableGetNameFromAddress(InetAddress addr) {
         return clientsTable.getNameFromAddress(addr);
     }
@@ -177,14 +183,50 @@ public class AirDeskGUI extends AnchorPane {
         if (selectedClient == null) {
             return;
         }
-        TCPConnection.sendWantMessageToAddress(selectedClient.getAddress(), selectedFile.getPath());
+        new Thread() {
+            public void run() {
+                TCPConnection.sendWantMessageToAddress(selectedClient.getAddress(), selectedFile.getPath());
+            }
+        }.start();
+
     }
-    
-    public static void addLogEntry(String entry){
-        logTextArea.setText(logTextArea.getText() + entry + "\n");
+
+    public static void addLogEntry(String entry) {
+        synchronized (logTextArea) {
+            logTextArea.setText(logTextArea.getText() + entry + "\n");
+        }
     }
-    
-    public static void clearLog(String entry){
-        logTextArea.setText("");
+
+    public static void setLogEntry(String entry) {
+        synchronized (logTextArea) {
+            logTextArea.setText(entry + "\n");
+        }
+    }
+
+    public static void clearLog(String entry) {
+        synchronized (logTextArea) {
+            logTextArea.setText("\n");
+        }
+    }
+
+    public static void setupLogProgress() {
+        synchronized (logTextArea) {
+            logTextArea.setText(logTextArea.getText() + "Status of the transfer: 0%" + "\n");
+        }
+
+    }
+
+    public static void advanceLogProgress(int value) {
+        synchronized (logTextArea) {
+            String[] lines = logTextArea.getText().split("\n");
+            for (int i = lines.length - 1; i >= 0; i--) {
+                if (lines[i].contains("%")) {
+                    lines[i] = "Status of the transfer: " + value + "%\n";
+                    break;
+                }
+            }
+            String logRebuild = String.join("\n", lines);
+            logTextArea.setText(logRebuild);
+        }
     }
 }

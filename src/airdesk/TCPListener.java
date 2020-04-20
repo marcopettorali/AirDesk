@@ -4,11 +4,11 @@ import java.io.*;
 import java.net.*;
 
 public class TCPListener extends Thread {
-
+    
     public TCPListener() {
         super();
     }
-
+    
     private void receiveWantMessage(Socket socket) {
         System.out.println("Received want msg");
         DataOutputStream dos = null;
@@ -19,13 +19,13 @@ public class TCPListener extends Thread {
             dis = new DataInputStream(socket.getInputStream());
             String filename = dis.readUTF();
             fis = new FileInputStream(filename);
-
+            byte[] bytes = new byte[1024];
+            dos.writeInt((int) Math.ceil(new File(filename).length() / 1024));
             while (true) {
-                byte[] bytes = new byte[65000];
                 int bytesRead = fis.read(bytes);
-                dos.write(bytes);
-                dos.writeInt(bytesRead);
+                dos.write(bytes,0 , bytesRead);
                 String ack = dis.readUTF();
+                
                 if (!ack.equals("ACK")) {
                     System.out.println("ACK ERROR");
                     break;
@@ -34,6 +34,7 @@ public class TCPListener extends Thread {
                     break;
                 }
             }
+            UDPConnection.sendListRequestToAddress(socket.getInetAddress());
             dos.flush();
         } catch (Exception ex) {
             ex.printStackTrace();
@@ -47,14 +48,18 @@ public class TCPListener extends Thread {
             }
         }
     }
-
+    
     private void receiveGiveMessage(Socket socket) {
         DataInputStream dis = null;
         try {
             dis = new DataInputStream(socket.getInputStream());
             String filename = dis.readUTF();
-
-            TCPConnection.sendWantMessageToAddress(socket.getInetAddress(), filename);
+            new Thread() {
+                public void run() {
+                    TCPConnection.sendWantMessageToAddress(socket.getInetAddress(), filename);
+                }
+            }.start();
+            
         } catch (Exception ex) {
             ex.printStackTrace();
         } finally {
@@ -65,14 +70,14 @@ public class TCPListener extends Thread {
             }
         }
     }
-
+    
     public void run() {
         DataInputStream dis = null;
         try (ServerSocket serverSocket = new ServerSocket(7778)) {
             while (true) {
                 Socket connectionSocket = serverSocket.accept();
                 dis = new DataInputStream(connectionSocket.getInputStream());
-
+                
                 String command = dis.readUTF();
                 System.out.println("Received command " + command + " from " + connectionSocket.getInetAddress().getHostAddress());
                 switch (command) {

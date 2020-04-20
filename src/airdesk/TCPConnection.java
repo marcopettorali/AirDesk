@@ -4,8 +4,16 @@ import java.io.*;
 import java.net.*;
 import java.text.*;
 import java.util.*;
+import javafx.application.Platform;
 
 public class TCPConnection {
+
+    private static int numberOfPackets;
+    private static int packetsCounter;
+
+    private static void incrementCounter() {
+        AirDeskGUI.advanceLogProgress((int) (packetsCounter++ * 100 / numberOfPackets));
+    }
 
     public static void sendWantMessageToAddress(InetAddress addr, String path) {
         FileOutputStream fos = null;
@@ -27,17 +35,20 @@ public class TCPConnection {
             }
 
             fos = new FileOutputStream(AirDesk.sharedFolder + fileName, true);
-
+            byte[] buffer = new byte[1024];
+            numberOfPackets = dis.readInt();
+            packetsCounter = 1;
+            AirDeskGUI.setupLogProgress();
             while (true) {
-                byte[] buffer = new byte[65000];
-                dis.read(buffer);
-
-                int bytesRead = dis.readInt();
-                System.out.println(bytesRead);
-                fos.write(buffer, 0, bytesRead);
+                int bytesRead = dis.read(buffer);
                 dos.writeUTF("ACK");
-                if (bytesRead != 65000) {
-                    AirDeskGUI.addLogEntry("File " + fileName + " received correctly.");
+                fos.write(buffer, 0, bytesRead);
+                Platform.runLater(() -> {
+                    incrementCounter();
+                });
+                if (bytesRead != 1024) {
+
+                    AirDeskGUI.addLogEntry("File " + fileName + " received correctly.\n");
                     fos.close();
                     break;
                 }

@@ -73,6 +73,9 @@ public class UDPListener extends Thread {
             inputStream = new ObjectInputStream(new ByteArrayInputStream(data));
             List<FileBean> files = (List<FileBean>) inputStream.readObject();
             Platform.runLater(() -> {
+                if(files.isEmpty()){
+                    AirDeskGUI.addLogEntry("The remote folder is empty");
+                }
                 AirDeskGUI.filesTableSetFiles(files);
             });
 
