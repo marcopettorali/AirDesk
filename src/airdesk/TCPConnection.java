@@ -47,7 +47,6 @@ public class TCPConnection {
                     incrementCounter();
                 });
                 if (bytesRead != 1024) {
-
                     AirDeskGUI.addLogEntry("File " + fileName + " received correctly.\n");
                     fos.close();
                     break;
